@@ -50,12 +50,15 @@ if all_sheets_data:
         for k in keywords:
             for c in cols:
                 if k in c: return c
+        # กรณีหาไม่เจอจริงๆ จะคืนค่าคอลัมน์สุดท้ายเพื่อไม่ให้ระบบพัง
         return cols[fallback_index] if len(cols) > fallback_index else cols[-1]
 
+    # ดึงชื่อคอลัมน์อัตโนมัติ
     tambon_col = get_column_name(['ตำบล'], 1)
     moo_col = get_column_name(['หมู่'], 2)
-    name_col = get_column_name(['ชื่อ'], 3)
-    phone_col = get_column_name(['เบอร์', 'โทร'], 4)
+    position_col = get_column_name(['ตำแหน่ง', 'ประเภท'], 3) # 🟢 เพิ่มการค้นหาคอลัมน์ตำแหน่ง
+    name_col = get_column_name(['ชื่อ'], 4)
+    phone_col = get_column_name(['เบอร์', 'โทร'], 5)
     
     with col2:
         moo_options = df[moo_col].unique()
@@ -84,43 +87,4 @@ if all_sheets_data:
 
     st.markdown("---")
     
-    # 4. แสดงผลลัพธ์
-    if is_filtered:
-        st.markdown(f"**พบข้อมูล จำนวน {len(filtered_df)} รายการ**")
-        
-        if not filtered_df.empty:
-            
-            # 🟢 สร้างคอลัมน์ใหม่สำหรับทำเป็นลิงก์โทรออก
-            def make_tel_link(phone_str):
-                if pd.isna(phone_str) or str(phone_str).strip() == "-":
-                    return None
-                # ดึงเฉพาะตัวเลขออกมา เผื่อมีการพิมพ์เครื่องหมายขีด (-) ปนมา
-                digits = "".join(filter(str.isdigit, str(phone_str)))
-                return f"tel:{digits}" if digits else None
-
-            filtered_df["กดโทรออก"] = filtered_df[phone_col].apply(make_tel_link)
-
-            # จัดเรียงคอลัมน์ที่จะแสดงผล เพิ่มคอลัมน์ "กดโทรออก" ต่อท้าย
-            raw_display_cols = [moo_col, tambon_col, name_col, phone_col, "กดโทรออก"]
-            display_cols = []
-            for c in raw_display_cols:
-                if c not in display_cols and c in filtered_df.columns:
-                    display_cols.append(c)
-            
-            # 🟢 กำหนดรูปแบบของคอลัมน์ลิงก์ตอนแสดงผลตาราง
-            st.dataframe(
-                filtered_df[display_cols],
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "กดโทรออก": st.column_config.LinkColumn(
-                        "กดโทรออก",
-                        help="คลิกเพื่อโทรออกทันทีผ่านโทรศัพท์มือถือ",
-                        display_text="📞 โทรออก" # แสดงข้อความนี้แทน URL tel:
-                    )
-                }
-            )
-        else:
-            st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
-    else:
-        st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
+    # 4
