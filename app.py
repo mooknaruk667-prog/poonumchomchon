@@ -3,11 +3,28 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import requests
+import base64
+import os
 
-# 1. ตั้งค่าหน้าเว็บ
+# 1. ฟังก์ชันดึงรูปภาพจากในระบบมาแสดงผล
+def get_base64_of_bin_file(bin_file):
+    if os.path.exists(bin_file):
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    return None
+
+# ลองหาไฟล์ logo.png ที่อัปโหลดไว้ ถ้าไม่เจอจะใช้ลิงก์สำรองแทน
+logo_b64 = get_base64_of_bin_file('logo.png')
+if logo_b64:
+    logo_src = f"data:image/png;base64,{logo_b64}"
+else:
+    logo_src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png/150px-Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png"
+
+# 2. ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="ระบบสืบค้นข้อมูลผู้นำชุมชน", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. แทรกโค้ด CSS
+# 3. แทรกโค้ด CSS
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
@@ -30,7 +47,7 @@ st.markdown("""
         max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
         border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
     }
-    .login-logo { width: 90px; margin-bottom: 20px; }
+    .login-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 20px; }
     
     .search-card {
         background-color: white; padding: 25px 30px; border-radius: 12px;
@@ -49,7 +66,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. สถานะล็อกอิน
+# 4. สถานะล็อกอิน
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
@@ -58,12 +75,12 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------------------------------
 if not st.session_state.logged_in:
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown('<img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png" class="login-logo">', unsafe_allow_html=True)
+    # 🟢 ดึงรูปโลโก้มาแสดงผล
+    st.markdown(f'<img src="{logo_src}" class="login-logo">', unsafe_allow_html=True)
     st.markdown('<h3 style="color:#1b365d; margin-bottom: 5px;">ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
     st.markdown('<p style="color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # 🟢 แยกเป็น 3 ช่อง: ชื่อ, สกุล, และ ฝ่าย
         user_firstname = st.text_input("ชื่อ", placeholder="เช่น สมชาย")
         user_lastname = st.text_input("สกุล", placeholder="เช่น รักดี")
         user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
@@ -72,14 +89,12 @@ if not st.session_state.logged_in:
         
         if submitted:
             if user_firstname.strip() and user_lastname.strip() and user_dept.strip():
-                # นำชื่อและสกุลมารวมกัน
                 user_full_name = f"{user_firstname.strip()} {user_lastname.strip()}"
                 
                 st.session_state.logged_in = True
                 st.session_state.user_name = user_full_name
                 st.session_state.user_dept = user_dept.strip()
                 
-                # ระบบดึงเวลาไทยอัตโนมัติ
                 bkk_tz = pytz.timezone('Asia/Bangkok')
                 login_time = datetime.now(bkk_tz).strftime("%d/%m/%Y %H:%M:%S")
                 
@@ -88,7 +103,6 @@ if not st.session_state.logged_in:
                 
                 if LOG_API_URL != "ใส่_URL_WEB_APP_ของคุณที่นี่":
                     try:
-                        # ใช้ params ส่งข้อมูล เพื่อให้ระบบช่วยจัดการการเว้นวรรคชื่อ-สกุลให้อัตโนมัติ
                         payload = {
                             "name": user_full_name,
                             "dept": user_dept.strip(),
@@ -110,7 +124,8 @@ else:
     st.markdown(f"""
     <div class="custom-header">
         <div class="header-title-box">
-            <img class="header-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png" alt="โลโก้กรมราชทัณฑ์">
+            <!-- 🟢 ดึงรูปโลโก้มาแสดงผลบน Header -->
+            <img class="header-logo-img" src="{logo_src}" alt="โลโก้กรมราชทัณฑ์">
             <div>
                 <p class="header-title">ระบบสืบค้นข้อมูลผู้นำชุมชน</p>
                 <p class="header-subtitle">เพื่อเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังจิตเวช</p>
