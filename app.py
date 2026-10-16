@@ -37,7 +37,7 @@ if all_sheets_data:
     
     st.markdown("---")
     
-    # 3. ส่วนของกล่องค้นหา (ปรับให้ หมู่ที่ มาก่อน ตำบล)
+    # 3. ส่วนของกล่องค้นหา (หมู่ที่ ➡️ ตำบล)
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -58,55 +58,11 @@ if all_sheets_data:
     phone_col = get_column_name(['เบอร์', 'โทร'], 4)
     
     with col2:
-        # ตัวกรองที่ 2: เลือกหมู่ที่ (สลับมาก่อน)
         moo_options = df[moo_col].unique()
         moo_list = ["ทั้งหมด"] + sorted([str(x) for x in moo_options if x != "-"])
         selected_moo = st.selectbox(f"🏠 เลือก{moo_col}", moo_list)
 
     with col3:
-        # ตัวกรองที่ 3: เลือกตำบล (อ้างอิงจากหมู่ที่ที่เลือกไว้)
         temp_df = df.copy()
         if selected_moo != "ทั้งหมด":
             temp_df = temp_df[temp_df[moo_col].astype(str) == selected_moo]
-            
-        tambon_options = temp_df[tambon_col].unique()
-        tambon_list = ["ทั้งหมด"] + sorted([str(x) for x in tambon_options if x != "-"])
-        selected_tambon = st.selectbox(f"📍 เลือก{tambon_col}", tambon_list)
-        
-
-    # 4. ตรวจสอบว่ามีการกรองข้อมูลหรือไม่
-    is_filtered = False
-    filtered_df = df.copy()
-    
-    if selected_moo != "ทั้งหมด":
-        filtered_df = filtered_df[filtered_df[moo_col].astype(str) == selected_moo]
-        is_filtered = True
-        
-    if selected_tambon != "ทั้งหมด":
-        filtered_df = filtered_df[filtered_df[tambon_col] == selected_tambon]
-        is_filtered = True
-
-    st.markdown("---")
-    
-    # 5. แสดงผลลัพธ์ (แสดงเฉพาะเมื่อมีการเลือกตัวกรองแล้วเท่านั้น)
-    if is_filtered:
-        st.markdown(f"**พบข้อมูล จำนวน {len(filtered_df)} รายการ**")
-        
-        if not filtered_df.empty:
-            # จัดเรียงคอลัมน์ใหม่ตามที่คุณต้องการ
-            raw_display_cols = [moo_col, tambon_col, name_col, phone_col]
-            display_cols = []
-            for c in raw_display_cols:
-                if c not in display_cols and c in filtered_df.columns:
-                    display_cols.append(c)
-            
-            st.dataframe(
-                filtered_df[display_cols],
-                use_container_width=True,
-                hide_index=True
-            )
-        else:
-            st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
-    else:
-        # ข้อความแจ้งเตือนตอนเริ่มต้นเมื่อยังไม่ได้เลือกอะไร
-        st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
