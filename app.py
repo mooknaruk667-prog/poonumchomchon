@@ -43,10 +43,47 @@ st.markdown("""
     .header-user { font-size: 14px; text-align: right; line-height: 1.4; }
     
     .login-container {
-        max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
-        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
+        max-width: 450px; margin: 60px auto; background: white; padding: 40px 35px;
+        border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; border: 1px solid #e2e8f0;
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
+    
+    /* 🟢 ตกแต่งช่องกรอกข้อมูล (Input Fields) ให้มีกรอบชัดเจนและสวยงาม */
+    div[data-testid="stTextInput"] div[data-baseweb="input"] {
+        border: 2px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        background-color: #f8fafc !important;
+        transition: all 0.3s ease-in-out;
+    }
+    div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within {
+        border-color: #1b365d !important;
+        box-shadow: 0 0 8px rgba(27, 54, 93, 0.2) !important;
+        background-color: #ffffff !important;
+    }
+    div[data-testid="stTextInput"] label p {
+        font-weight: 600 !important;
+        color: #1b365d !important;
+        margin-bottom: 5px !important;
+        font-size: 14px !important;
+    }
+    
+    /* 🟢 ตกแต่งปุ่มเข้าสู่ระบบให้ดูมีมิติและสวยเข้ากับกรอบ */
+    div[data-testid="stFormSubmitButton"] button {
+        background-color: #1b365d !important;
+        color: white !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        padding: 10px !important;
+        border: none !important;
+        box-shadow: 0 4px 6px rgba(27, 54, 93, 0.2) !important;
+        transition: all 0.3s ease-in-out !important;
+        margin-top: 15px !important;
+    }
+    div[data-testid="stFormSubmitButton"] button:hover {
+        background-color: #2b5c8f !important;
+        box-shadow: 0 6px 12px rgba(27, 54, 93, 0.3) !important;
+        transform: translateY(-2px) !important;
+    }
     
     .search-card {
         background-color: white; padding: 25px 30px; border-radius: 12px;
@@ -87,7 +124,6 @@ if not st.session_state.logged_in:
     st.markdown('<p style="text-align: center; color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # 🟢 แก้ไข Placeholder ชื่อ และ สกุล ตามที่ต้องการ
         user_firstname = st.text_input("ชื่อ", placeholder="เช่น หล่อ")
         user_lastname = st.text_input("สกุล", placeholder="เช่น พิลึก")
         user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
