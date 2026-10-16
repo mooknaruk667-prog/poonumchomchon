@@ -43,35 +43,32 @@ st.markdown("""
     .header-user { font-size: 14px; text-align: right; line-height: 1.4; }
     
     .login-container {
-        max-width: 450px; margin: 60px auto; background: white; padding: 40px 35px;
-        border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; border: 1px solid #e2e8f0;
+        max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
+        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
     
-    /* 🟢 ตกแต่งช่องกรอกข้อมูล (Input Fields) ให้มีกรอบชัดเจนและสวยงาม */
-    div[data-testid="stTextInput"] div[data-baseweb="input"] {
-        border: 2px solid #cbd5e1 !important;
-        border-radius: 8px !important;
-        background-color: #f8fafc !important;
-        transition: all 0.3s ease-in-out;
+    div[data-baseweb="input"] {
+        background-color: #eaf4ff !important;
+        border: 2px solid #8ab4f8 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease;
     }
-    div[data-testid="stTextInput"] div[data-baseweb="input"]:focus-within {
-        border-color: #1b365d !important;
-        box-shadow: 0 0 8px rgba(27, 54, 93, 0.2) !important;
+    div[data-baseweb="input"]:focus-within {
         background-color: #ffffff !important;
+        border-color: #1b365d !important;
+        box-shadow: 0 0 8px rgba(27, 54, 93, 0.4) !important;
     }
     div[data-testid="stTextInput"] label p {
-        font-weight: 600 !important;
         color: #1b365d !important;
-        margin-bottom: 5px !important;
-        font-size: 14px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
     }
     
-    /* 🟢 ตกแต่งปุ่มเข้าสู่ระบบให้ดูมีมิติและสวยเข้ากับกรอบ */
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1b365d !important;
         color: white !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         font-weight: bold !important;
         padding: 10px !important;
         border: none !important;
@@ -81,8 +78,8 @@ st.markdown("""
     }
     div[data-testid="stFormSubmitButton"] button:hover {
         background-color: #2b5c8f !important;
-        box-shadow: 0 6px 12px rgba(27, 54, 93, 0.3) !important;
         transform: translateY(-2px) !important;
+        box-shadow: 0 6px 12px rgba(27, 54, 93, 0.3) !important;
     }
     
     .search-card {
@@ -169,7 +166,7 @@ else:
         <div class="header-title-box">
             <img class="header-logo-img" src="{logo_src}" alt="โลโก้กรมราชทัณฑ์">
             <div>
-                <p style="margin: 0; font-size: 11px; color: #a5c8ea;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</p>
+                <!-- 🟢 เอาชื่อหน่วยงานออกจาก Header ด้านบนนี้แล้ว -->
                 <p class="header-title">ระบบสืบค้นข้อมูลผู้นำชุมชน</p>
                 <p class="header-subtitle">เพื่อเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังจิตเวช</p>
             </div>
@@ -288,4 +285,10 @@ else:
         else:
             st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
 
-    st.markdown('<div class="custom-footer">พัฒนาโดย: Km Ureka Moment</div>', unsafe_allow_html=True)
+    # 🟢 เพิ่มชื่อหน่วยงานไว้ที่ Footer ด้านล่างสุด
+    st.markdown('''
+    <div class="custom-footer">
+        <div style="color: #1b365d; font-weight: bold; margin-bottom: 8px;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</div>
+        พัฒนาโดย: Km Ureka Moment
+    </div>
+    ''', unsafe_allow_html=True)
