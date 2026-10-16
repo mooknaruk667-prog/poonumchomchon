@@ -76,7 +76,6 @@ if not st.session_state.logged_in:
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     st.markdown(f'<img src="{logo_src}" class="login-logo">', unsafe_allow_html=True)
     
-    # 🟢 บังคับจัดกึ่งกลางข้อความหน่วยงานใต้โลโก้
     st.markdown("""
     <div style="text-align: center; color:#1b365d; font-size: 16px; font-weight: bold; line-height: 1.4; margin-bottom: 15px;">
         ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง<br>
@@ -84,13 +83,13 @@ if not st.session_state.logged_in:
     </div>
     """, unsafe_allow_html=True)
     
-    # 🟢 บังคับจัดกึ่งกลางชื่อระบบและคำอธิบาย
     st.markdown('<h3 style="text-align: center; color:#1b365d; margin-bottom: 5px;">ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
     st.markdown('<p style="text-align: center; color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        user_firstname = st.text_input("ชื่อ", placeholder="เช่น สมชาย")
-        user_lastname = st.text_input("สกุล", placeholder="เช่น รักดี")
+        # 🟢 แก้ไข Placeholder ชื่อ และ สกุล ตามที่ต้องการ
+        user_firstname = st.text_input("ชื่อ", placeholder="เช่น หล่อ")
+        user_lastname = st.text_input("สกุล", placeholder="เช่น พิลึก")
         user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
         
         submitted = st.form_submit_button("เข้าสู่ระบบ", use_container_width=True)
