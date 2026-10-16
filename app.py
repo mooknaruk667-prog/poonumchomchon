@@ -125,10 +125,22 @@ if not st.session_state.logged_in:
         user_lastname = st.text_input("สกุล", placeholder="เช่น พิลึก")
         user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
         
+        # 🟢 เพิ่มกล่อง Checkbox ยอมรับเงื่อนไข
+        consent_checked = st.checkbox("ข้าพเจ้ารับทราบและยินยอมให้บันทึกประวัติการเข้าใช้งาน")
+        
         submitted = st.form_submit_button("เข้าสู่ระบบ", use_container_width=True)
         
+        # 🟢 เพิ่มคำชี้แจง Privacy Notice ใต้ปุ่มล็อกอิน
+        st.markdown("""
+        <div style="font-size: 11px; color: #666; text-align: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
+            <b>คำชี้แจง:</b> ระบบมีการบันทึก ชื่อ สกุล ฝ่าย และเวลาเข้าใช้งาน เพื่อประโยชน์ในการรักษาความปลอดภัยของระบบข้อมูลสารสนเทศ
+        </div>
+        """, unsafe_allow_html=True)
+        
         if submitted:
-            if user_firstname.strip() and user_lastname.strip() and user_dept.strip():
+            if not consent_checked:
+                st.error("⚠️ กรุณาติ๊กช่อง 'ยอมรับเงื่อนไข' ก่อนเข้าสู่ระบบ")
+            elif user_firstname.strip() and user_lastname.strip() and user_dept.strip():
                 user_full_name = f"{user_firstname.strip()} {user_lastname.strip()}"
                 
                 st.session_state.logged_in = True
@@ -166,7 +178,6 @@ else:
         <div class="header-title-box">
             <img class="header-logo-img" src="{logo_src}" alt="โลโก้กรมราชทัณฑ์">
             <div>
-                <!-- 🟢 เอาชื่อหน่วยงานออกจาก Header ด้านบนนี้แล้ว -->
                 <p class="header-title">ระบบสืบค้นข้อมูลผู้นำชุมชน</p>
                 <p class="header-subtitle">เพื่อเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังจิตเวช</p>
             </div>
@@ -259,6 +270,13 @@ else:
         if is_filtered:
             st.markdown(f'<div class="results-title">ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
             
+            # 🟢 เพิ่มข้อกำหนดและแจ้งเตือนในหน้าผลการค้นหา
+            st.markdown("""
+            <div style="background-color: #fff3cd; color: #856404; padding: 12px 15px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 14px; line-height: 1.5;">
+                ⚠️ <b>ข้อควรระวัง:</b> ข้อมูลนี้ใช้เพื่อการประสานงานเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังของทางราชการเท่านั้น <u>ห้ามมิให้คัดลอก แคปหน้าจอ หรือนำไปเผยแพร่ต่อสาธารณะโดยเด็ดขาด</u>
+            </div>
+            """, unsafe_allow_html=True)
+            
             if not filtered_df.empty:
                 table_html = '<table class="custom-table"><thead><tr><th>ที่อยู่</th><th>ตำแหน่ง/ชื่อ</th><th>เบอร์ติดต่อ</th></tr></thead><tbody>'
                 
@@ -285,7 +303,6 @@ else:
         else:
             st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
 
-    # 🟢 เพิ่มชื่อหน่วยงานไว้ที่ Footer ด้านล่างสุด
     st.markdown('''
     <div class="custom-footer">
         <div style="color: #1b365d; font-weight: bold; margin-bottom: 8px;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</div>
