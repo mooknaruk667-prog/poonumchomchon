@@ -2,29 +2,23 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
+import requests
 
 # 1. ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="ระบบสืบค้นข้อมูลผู้นำชุมชน", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. แทรกโค้ด CSS สำหรับตกแต่ง UI
+# 2. แทรกโค้ด CSS
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     .block-container {padding-top: 0rem; padding-bottom: 2rem; max-width: 1200px;}
-    
     .stApp { background-color: #eef2f6; }
 
     .custom-header {
-        background-color: #1b365d;
-        color: white;
-        padding: 15px 30px;
-        border-radius: 0 0 15px 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background-color: #1b365d; color: white; padding: 15px 30px;
+        border-radius: 0 0 15px 15px; display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .header-title-box { display: flex; align-items: center; gap: 15px; }
     .header-logo-img { width: 48px; height: 48px; object-fit: contain; }
@@ -33,24 +27,14 @@ st.markdown("""
     .header-user { font-size: 14px; text-align: right; line-height: 1.4; }
     
     .login-container {
-        max-width: 450px;
-        margin: 60px auto;
-        background: white;
-        padding: 40px 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        text-align: center;
-        border: 1px solid #e9ecef;
+        max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
+        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
     }
     .login-logo { width: 90px; margin-bottom: 20px; }
     
     .search-card {
-        background-color: white;
-        padding: 25px 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        margin-bottom: 30px;
-        border: 1px solid #e9ecef;
+        background-color: white; padding: 25px 30px; border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e9ecef;
     }
     .search-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333; }
     .results-title { font-size: 18px; font-weight: bold; color: #1b365d; margin-bottom: 15px; }
@@ -65,7 +49,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. ระบบจัดการสถานะการล็อกอิน (Session State)
+# 3. สถานะล็อกอิน
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
@@ -74,44 +58,59 @@ if 'logged_in' not in st.session_state:
 # ---------------------------------------------------------
 if not st.session_state.logged_in:
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
-    st.markdown('<img src="https://raw.githubusercontent.com/the-m-moment/image-host/main/corrections-logo.png" class="login-logo">', unsafe_allow_html=True)
+    st.markdown('<img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png" class="login-logo">', unsafe_allow_html=True)
     st.markdown('<h3 style="color:#1b365d; margin-bottom: 5px;">ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อเพื่อบันทึกประวัติการเข้าใช้งาน</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        user_name = st.text_input("ชื่อ-นามสกุล ผู้ใช้งาน", placeholder="เช่น นายสมชาย รักดี")
-        user_dept = st.text_input("ตำแหน่ง / ฝ่าย / แผนก", placeholder="เช่น นักสังคมสงเคราะห์ / ฝ่ายทัณฑปฏิบัติ")
+        # 🟢 แยกเป็น 3 ช่อง: ชื่อ, สกุล, และ ฝ่าย
+        user_firstname = st.text_input("ชื่อ", placeholder="เช่น สมชาย")
+        user_lastname = st.text_input("สกุล", placeholder="เช่น รักดี")
+        user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
         
         submitted = st.form_submit_button("เข้าสู่ระบบ", use_container_width=True)
         
         if submitted:
-            if user_name.strip() and user_dept.strip():
-                # บันทึกข้อมูลลง Session
+            if user_firstname.strip() and user_lastname.strip() and user_dept.strip():
+                # นำชื่อและสกุลมารวมกัน
+                user_full_name = f"{user_firstname.strip()} {user_lastname.strip()}"
+                
                 st.session_state.logged_in = True
-                st.session_state.user_name = user_name.strip()
+                st.session_state.user_name = user_full_name
                 st.session_state.user_dept = user_dept.strip()
                 
-                # บันทึกเวลาเข้าใช้งาน (เวลาไทย)
+                # ระบบดึงเวลาไทยอัตโนมัติ
                 bkk_tz = pytz.timezone('Asia/Bangkok')
-                st.session_state.login_time = datetime.now(bkk_tz).strftime("%d/%m/%Y %H:%M:%S")
+                login_time = datetime.now(bkk_tz).strftime("%d/%m/%Y %H:%M:%S")
                 
-                # โค้ดส่วนนี้คือจุดที่จะส่งข้อมูลไปบันทึกลงฐานข้อมูลในอนาคต
-                print(f"Log: {st.session_state.user_name} ({st.session_state.user_dept}) เข้าใช้งานเวลา {st.session_state.login_time}")
+                # ⚠️ นำ URL ของ Web App จาก Google Apps Script มาใส่ตรงนี้
+                LOG_API_URL = "ใส่_URL_WEB_APP_ของคุณที่นี่"
+                
+                if LOG_API_URL != "ใส่_URL_WEB_APP_ของคุณที่นี่":
+                    try:
+                        # ใช้ params ส่งข้อมูล เพื่อให้ระบบช่วยจัดการการเว้นวรรคชื่อ-สกุลให้อัตโนมัติ
+                        payload = {
+                            "name": user_full_name,
+                            "dept": user_dept.strip(),
+                            "time": login_time
+                        }
+                        requests.get(LOG_API_URL, params=payload, timeout=5)
+                    except Exception as e:
+                        print("Error logging to sheets:", e)
                 
                 st.rerun()
             else:
-                st.error("⚠️ กรุณากรอกชื่อและฝ่ายให้ครบถ้วนก่อนเข้าใช้งาน")
+                st.error("⚠️ กรุณากรอก ชื่อ, สกุล และฝ่าย ให้ครบถ้วนก่อนเข้าใช้งาน")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# หน้าหลักของระบบ (เมื่อลงชื่อเข้าใช้แล้ว)
+# หน้าหลักของระบบ
 # ---------------------------------------------------------
 else:
-    # 4. สร้าง Header และปุ่มออกจากระบบ
     st.markdown(f"""
     <div class="custom-header">
         <div class="header-title-box">
-            <img class="header-logo-img" src="https://raw.githubusercontent.com/the-m-moment/image-host/main/corrections-logo.png" alt="โลโก้กรมราชทัณฑ์">
+            <img class="header-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Official_emblem_of_the_Department_of_Corrections_%28Thailand%29.png" alt="โลโก้กรมราชทัณฑ์">
             <div>
                 <p class="header-title">ระบบสืบค้นข้อมูลผู้นำชุมชน</p>
                 <p class="header-subtitle">เพื่อเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังจิตเวช</p>
@@ -130,7 +129,6 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # 5. ดึงข้อมูลจาก Google Sheets
     SHEET_URL = "https://docs.google.com/spreadsheets/d/1xpG9TQH5rAIUwECgy8LKQLO4lGPQrc_jE-ZwRFLK0hE/export?format=xlsx"
 
     @st.cache_data(ttl=600)
@@ -151,7 +149,6 @@ else:
 
     all_sheets_data = load_data()
 
-    # 6. ระบบค้นหา (Search Card)
     if all_sheets_data:
         st.markdown('<div class="search-card">', unsafe_allow_html=True)
         st.markdown('<div class="search-title">🔍 ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
@@ -193,7 +190,6 @@ else:
             
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # 7. กรองข้อมูลและแสดงผล
         is_filtered = False
         filtered_df = df.copy()
         
@@ -234,5 +230,4 @@ else:
         else:
             st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
 
-    # 8. แสดงชื่อผู้พัฒนา (Footer)
     st.markdown('<div class="custom-footer">พัฒนาโดย: Km Ureka Moment</div>', unsafe_allow_html=True)
