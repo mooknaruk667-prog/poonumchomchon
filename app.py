@@ -87,4 +87,42 @@ if all_sheets_data:
 
     st.markdown("---")
     
-    # 4
+    # 4. แสดงผลลัพธ์
+    if is_filtered:
+        st.markdown(f"**พบข้อมูล จำนวน {len(filtered_df)} รายการ**")
+        
+        if not filtered_df.empty:
+            
+            def make_tel_link(phone_str):
+                if pd.isna(phone_str) or str(phone_str).strip() == "-":
+                    return None
+                digits = "".join(filter(str.isdigit, str(phone_str)))
+                return f"tel:{digits}" if digits else None
+
+            filtered_df["กดโทรออก"] = filtered_df[phone_col].apply(make_tel_link)
+
+            # 🟢 จัดเรียงคอลัมน์ที่จะแสดงผล: เพิ่ม position_col (ตำแหน่ง) เข้ามาในตาราง
+            raw_display_cols = [moo_col, tambon_col, position_col, name_col, phone_col, "กดโทรออก"]
+            display_cols = []
+            
+            # ป้องกันกรณีหาคอลัมน์บางอันไม่เจอในชีต จะได้ไม่เกิด Error
+            for c in raw_display_cols:
+                if c not in display_cols and c in filtered_df.columns:
+                    display_cols.append(c)
+            
+            st.dataframe(
+                filtered_df[display_cols],
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "กดโทรออก": st.column_config.LinkColumn(
+                        "กดโทรออก",
+                        help="คลิกเพื่อโทรออกทันทีผ่านโทรศัพท์มือถือ",
+                        display_text="📞 โทรออก" 
+                    )
+                }
+            )
+        else:
+            st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
+    else:
+        st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
