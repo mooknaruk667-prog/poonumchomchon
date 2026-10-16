@@ -46,7 +46,6 @@ st.markdown("""
         max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
         border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
     }
-    /* 🟢 ปรับโลโก้ให้อยู่กึ่งกลางเป๊ะๆ ด้วย display: block และ margin: auto */
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
     
     .search-card {
@@ -77,16 +76,17 @@ if not st.session_state.logged_in:
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     st.markdown(f'<img src="{logo_src}" class="login-logo">', unsafe_allow_html=True)
     
-    # 🟢 เพิ่มบรรทัดที่ 2 เรือนจำจังหวัดบุรีรัมย์ และจัดกึ่งกลาง
+    # 🟢 บังคับจัดกึ่งกลางข้อความหน่วยงานใต้โลโก้
     st.markdown("""
-    <div style="color:#1b365d; font-size: 16px; font-weight: bold; line-height: 1.4; margin-bottom: 15px;">
+    <div style="text-align: center; color:#1b365d; font-size: 16px; font-weight: bold; line-height: 1.4; margin-bottom: 15px;">
         ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง<br>
         เรือนจำจังหวัดบุรีรัมย์
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown('<h3 style="color:#1b365d; margin-bottom: 5px;">ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
+    # 🟢 บังคับจัดกึ่งกลางชื่อระบบและคำอธิบาย
+    st.markdown('<h3 style="text-align: center; color:#1b365d; margin-bottom: 5px;">ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center; color:#666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
         user_firstname = st.text_input("ชื่อ", placeholder="เช่น สมชาย")
@@ -134,7 +134,6 @@ else:
         <div class="header-title-box">
             <img class="header-logo-img" src="{logo_src}" alt="โลโก้กรมราชทัณฑ์">
             <div>
-                <!-- 🟢 อัปเดตชื่อหน่วยงานให้ตรงกับหน้าล็อกอิน -->
                 <p style="margin: 0; font-size: 11px; color: #a5c8ea;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</p>
                 <p class="header-title">ระบบสืบค้นข้อมูลผู้นำชุมชน</p>
                 <p class="header-subtitle">เพื่อเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังจิตเวช</p>
