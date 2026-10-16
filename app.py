@@ -4,7 +4,7 @@ import pandas as pd
 # 1. ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="ระบบสืบค้นข้อมูลผู้นำชุมชน", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. แทรกโค้ด CSS สำหรับตกแต่ง UI
+# 2. แทรกโค้ด CSS สำหรับตกแต่ง UI และ Footer
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
@@ -29,8 +29,7 @@ st.markdown("""
     .header-title { margin: 0; font-size: 22px; font-weight: bold; }
     .header-subtitle { margin: 0; font-size: 13px; color: #ffcc00; }
     .header-user { font-size: 14px; display: flex; align-items: center; gap: 15px; }
-    .logout-btn { border: 1px solid white; padding: 5px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; }
-
+    
     .search-card {
         background-color: white;
         padding: 25px 30px;
@@ -58,6 +57,16 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 5px;
+    }
+    
+    /* 🟢 สไตล์สำหรับส่วน Footer (ชื่อผู้พัฒนา) */
+    .custom-footer {
+        text-align: center;
+        padding: 20px;
+        margin-top: 40px;
+        color: #6c757d;
+        font-size: 14px;
+        border-top: 1px solid #dce2e8;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -181,3 +190,6 @@ if all_sheets_data:
             st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
     else:
         st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
+
+# 7. 🟢 แสดงชื่อผู้พัฒนา (Footer)
+st.markdown('<div class="custom-footer">พัฒนาโดย: Km Ureka Moment</div>', unsafe_allow_html=True)
