@@ -16,7 +16,10 @@ def load_data():
         df = pd.read_csv(SHEET_URL)
         df = df.fillna("-")
         
-        # จัดการคอลัมน์เบอร์โทรไม่ให้มี .0
+        # 🟢 แก้ไข Error: บังคับตัดคอลัมน์ที่มีชื่อซ้ำกันออก เพื่อไม่ให้ระบบพัง
+        df = df.loc[:, ~df.columns.duplicated()]
+        
+        # จัดการคอลัมน์เบอร์โทร
         for col in df.columns:
             if 'เบอร์' in col or 'โทร' in col:
                 df[col] = df[col].astype(str).str.replace(r'\.0$', '', regex=True)
@@ -28,25 +31,24 @@ def load_data():
 df = load_data()
 
 if not df.empty:
-    # 3. กำหนดชื่อคอลัมน์ให้ตรงกับใน Google Sheets แบบเจาะจง 
-    # (หากหัวตารางในชีทของคุณสะกดต่างจากนี้ สามารถแก้ข้อความในเครื่องหมายคำพูดได้เลยครับ)
-    amphoe_col = "อำเภอ" 
-    tambon_col = "ตำบล"
-    moo_col = "หมู่ที่"
-    name_col = "ชื่อผู้นำชุมชน" # หรือ "ชื่อ-นามสกุล"
-    phone_col = "เบอร์ติดต่อ"   # หรือ "เบอร์โทร"
-    
-    # ระบบตรวจสอบสำรอง (เผื่อชื่อคอลัมน์ไม่ตรง จะได้ไม่พัง และข้ามคอลัมน์แรกที่เป็นลำดับ)
     cols = df.columns.tolist()
-    if amphoe_col not in cols: amphoe_col = next((c for c in cols if 'อำเภอ' in c), cols[1] if len(cols) > 1 else cols[0])
-    if tambon_col not in cols: tambon_col = next((c for c in cols if 'ตำบล' in c), cols[2] if len(cols) > 2 else cols[0])
-    if moo_col not in cols: moo_col = next((c for c in cols if 'หมู่' in c), cols[3] if len(cols) > 3 else cols[0])
-    if name_col not in cols: name_col = next((c for c in cols if 'ชื่อ' in c), cols[4] if len(cols) > 4 else cols[0])
-    if phone_col not in cols: phone_col = next((c for c in cols if 'เบอร์' in c or 'โทร' in c), cols[5] if len(cols) > 5 else cols[0])
+    
+    # 3. กำหนดชื่อคอลัมน์แบบรัดกุม ป้องกันการเกิดชื่อซ้ำ
+    def get_column_name(keywords, fallback_index):
+        for k in keywords:
+            for c in cols:
+                if k in c: return c
+        return cols[fallback_index] if len(cols) > fallback_index else cols[-1]
+
+    amphoe_col = get_column_name(['อำเภอ'], 1)
+    tambon_col = get_column_name(['ตำบล'], 2)
+    moo_col = get_column_name(['หมู่'], 3)
+    name_col = get_column_name(['ชื่อ'], 4)
+    phone_col = get_column_name(['เบอร์', 'โทร'], 5)
 
     st.markdown("---")
     
-    # 4. ส่วนของกล่องค้นหาแบบ Dropdown (อำเภอ -> ตำบล -> หมู่ที่)
+    # 4. ส่วนของกล่องค้นหาแบบ Dropdown
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -78,20 +80,22 @@ if not df.empty:
     
     if selected_amphoe != "ทั้งหมด":
         filtered_df = filtered_df[filtered_df[amphoe_col] == selected_amphoe]
-        
-    if selected_tambon != "ทั้งหมด":
-        filtered_df = filtered_df[filtered_df[tambon_col] == selected_tambon]
-        
-    if selected_moo != "ทั้งหมด":
-        filtered_df = filtered_df[filtered_df[moo_col].astype(str) == selected_moo]
+        if selected_tambon != "ทั้งหมด":
+            filtered_df = filtered_df[filtered_df[tambon_col] == selected_tambon]
+            if selected_moo != "ทั้งหมด":
+                filtered_df = filtered_df[filtered_df[moo_col].astype(str) == selected_moo]
 
     st.markdown("---")
     st.markdown(f"**พบข้อมูล {len(filtered_df)} รายการ**")
     
-    # 6. แสดงผลลัพธ์โดยซ่อนคอลัมน์ "ลำดับ" ทิ้งไป
+    # 6. แสดงผลลัพธ์
     if not filtered_df.empty:
-        # เลือกแสดงเฉพาะคอลัมน์เนื้อหาที่ต้องการ
-        display_cols = [amphoe_col, tambon_col, moo_col, name_col, phone_col]
+        # 🟢 แก้ไข Error: ตรวจสอบอีกครั้งเพื่อไม่ให้มีชื่อคอลัมน์ซ้ำกันก่อนส่งไปแสดงตาราง
+        raw_display_cols = [amphoe_col, tambon_col, moo_col, name_col, phone_col]
+        display_cols = []
+        for c in raw_display_cols:
+            if c not in display_cols and c in filtered_df.columns:
+                display_cols.append(c)
         
         st.dataframe(
             filtered_df[display_cols],
