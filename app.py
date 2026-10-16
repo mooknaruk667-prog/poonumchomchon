@@ -163,4 +163,95 @@ else:
                 df = df.fillna("-")
                 df = df.loc[:, ~df.columns.duplicated()] 
                 for col in df.columns:
-                    if '
+                    if 'เบอร์' in col or 'โทร' in col:
+                        df[col] = df[col].astype(str).str.replace(r'\.0$', '', regex=True)
+                df_dict[sheet] = df
+            return df_dict
+        except Exception as e:
+            st.error(f"ไม่สามารถโหลดข้อมูลได้: {e}")
+            return None
+
+    all_sheets_data = load_data()
+
+    if all_sheets_data:
+        st.markdown('<div class="search-card">', unsafe_allow_html=True)
+        st.markdown('<div class="search-title">🔍 ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
+        
+        amphoe_list = list(all_sheets_data.keys())
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            selected_amphoe = st.selectbox("📍 เลือกอำเภอ (จากแท็บชีต)", amphoe_list)
+            
+        df = all_sheets_data[selected_amphoe]
+        cols = df.columns.tolist()
+        
+        def get_column_name(keywords, fallback_index):
+            for k in keywords:
+                for c in cols:
+                    if k in c: return c
+            return cols[fallback_index] if len(cols) > fallback_index else cols[-1]
+
+        tambon_col = get_column_name(['ตำบล'], 1)
+        moo_col = get_column_name(['หมู่'], 2)
+        position_col = get_column_name(['ตำแหน่ง', 'ประเภท'], 3)
+        name_col = get_column_name(['ชื่อ'], 4)
+        phone_col = get_column_name(['เบอร์', 'โทร'], 5)
+        
+        with col2:
+            moo_options = df[moo_col].unique()
+            moo_list = ["ทั้งหมด"] + sorted([str(x) for x in moo_options if x != "-"])
+            selected_moo = st.selectbox(f"🏠 เลือก{moo_col}", moo_list)
+
+        with col3:
+            temp_df = df.copy()
+            if selected_moo != "ทั้งหมด":
+                temp_df = temp_df[temp_df[moo_col].astype(str) == selected_moo]
+                
+            tambon_options = temp_df[tambon_col].unique()
+            tambon_list = ["ทั้งหมด"] + sorted([str(x) for x in tambon_options if x != "-"])
+            selected_tambon = st.selectbox(f"📍 เลือก{tambon_col}", tambon_list)
+            
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        is_filtered = False
+        filtered_df = df.copy()
+        
+        if selected_moo != "ทั้งหมด":
+            filtered_df = filtered_df[filtered_df[moo_col].astype(str) == selected_moo]
+            is_filtered = True
+            
+        if selected_tambon != "ทั้งหมด":
+            filtered_df = filtered_df[filtered_df[tambon_col] == selected_tambon]
+            is_filtered = True
+
+        if is_filtered:
+            st.markdown(f'<div class="results-title">ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
+            
+            if not filtered_df.empty:
+                table_html = '<table class="custom-table"><thead><tr><th>ที่อยู่</th><th>ตำแหน่ง/ชื่อ</th><th>เบอร์ติดต่อ</th></tr></thead><tbody>'
+                
+                for _, row in filtered_df.iterrows():
+                    address_str = f"หมู่ {row[moo_col]} ต.{row[tambon_col]} อ.{selected_amphoe}"
+                    
+                    pos = row[position_col]
+                    role_name_str = f"{pos} - {row[name_col]}" if pos != "-" else row[name_col]
+                    
+                    phone_str = str(row[phone_col])
+                    clean_phone = "".join(filter(str.isdigit, phone_str))
+                    
+                    if clean_phone and clean_phone != "-":
+                        btn_html = f"<a href='tel:{clean_phone}' class='call-button'>📞 โทร {phone_str}</a>"
+                    else:
+                        btn_html = "-"
+                    
+                    table_html += f"<tr><td>{address_str}</td><td>{role_name_str}</td><td>{btn_html}</td></tr>"
+                    
+                table_html += '</tbody></table>'
+                st.markdown(table_html, unsafe_allow_html=True)
+            else:
+                st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
+        else:
+            st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
+
+    st.markdown('<div class="custom-footer">พัฒนาโดย: Km Ureka Moment</div>', unsafe_allow_html=True)
