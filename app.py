@@ -61,21 +61,23 @@ st.markdown("""
         box-shadow: 0 0 8px rgba(27, 54, 93, 0.4) !important;
     }
     
-    /* 🟢 สีหัวข้อ (Label) */
-    div[data-testid="stTextInput"] label p, 
-    div[data-testid="stSelectbox"] label p {
+    /* 🟢 ล็อกเป้าข้อความหัวข้อ (Label) อำเภอ หมู่ ตำบล และหน้าล็อกอินทุกจุด ให้เป็นสีน้ำเงินเข้ม 100% */
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] div,
+    label p, 
+    label div {
         color: #1b365d !important;
         font-weight: 700 !important;
         font-size: 15px !important;
     }
     
-    /* 🟢 บังคับสี "ตัวหนังสือด้านในกล่องพิมพ์" (TextInput) */
+    /* บังคับสีข้อความในกล่องพิมพ์ */
     div[data-testid="stTextInput"] input {
         color: #1b365d !important;
         font-weight: bold !important;
     }
     
-    /* 🟢 บังคับสี "ตัวหนังสือด้านในกล่องตัวเลือก" (Selectbox) และตอนที่พับอยู่ */
+    /* บังคับสีข้อความในกล่องตัวเลือกที่พับอยู่ */
     div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
         background-color: #ffffff !important;
         border: 1px solid #cbd5e1 !important;
@@ -87,11 +89,12 @@ st.markdown("""
         font-weight: bold !important;
     }
     
-    /* 🟢 บังคับสีตัวหนังสือในรายการ Dropdown ที่กางออกมา (แก้ปัญหามือถือ Dark Mode) */
+    /* บังคับสีข้อความใน Dropdown รายการ (แก้ Dark Mode มือถือ) */
     ul[role="listbox"] li, ul[data-baseweb="menu"] li {
         color: #1b365d !important;
     }
     
+    /* ตกแต่งปุ่มยืนยัน */
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1b365d !important;
         color: white !important;
@@ -303,33 +306,3 @@ else:
             
             if not filtered_df.empty:
                 table_html = '<table class="custom-table"><thead><tr><th>ที่อยู่</th><th>ตำแหน่ง/ชื่อ</th><th>เบอร์ติดต่อ</th></tr></thead><tbody>'
-                
-                for _, row in filtered_df.iterrows():
-                    address_str = f"หมู่ {row[moo_col]} ต.{row[tambon_col]} อ.{selected_amphoe}"
-                    
-                    pos = row[position_col]
-                    role_name_str = f"{pos} - {row[name_col]}" if pos != "-" else row[name_col]
-                    
-                    phone_str = str(row[phone_col])
-                    clean_phone = "".join(filter(str.isdigit, phone_str))
-                    
-                    if clean_phone and clean_phone != "-":
-                        btn_html = f"<a href='tel:{clean_phone}' class='call-button'>📞 โทร {phone_str}</a>"
-                    else:
-                        btn_html = "-"
-                    
-                    table_html += f"<tr><td>{address_str}</td><td>{role_name_str}</td><td>{btn_html}</td></tr>"
-                    
-                table_html += '</tbody></table>'
-                st.markdown(table_html, unsafe_allow_html=True)
-            else:
-                st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
-        else:
-            st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
-
-    st.markdown('''
-    <div class="custom-footer">
-        <div style="color: #1b365d; font-weight: bold; margin-bottom: 8px;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</div>
-        พัฒนาโดย: Km Ureka Moment
-    </div>
-    ''', unsafe_allow_html=True)
