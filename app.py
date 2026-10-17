@@ -69,37 +69,38 @@ st.markdown("""
     }
 
     /* ========================================================= */
-    /* 🟢 ท่าไม้ตาย: บังคับสีตัวอักษรทับ Dark Mode ของมือถือแบบ 100% */
+    /* 🟢 โซนแก้ไขสีตัวหนังสือ "สีดำ" ขั้นเด็ดขาด */
     /* ========================================================= */
     
-    /* 1. ล็อกเป้าข้อความหัวข้อหลังไอคอน (📍เลือกอำเภอ, 🏠เลือกหมู่) */
+    /* 1. เปลี่ยนหัวข้อหลังไอคอน (📍เลือกอำเภอ, 🏠เลือกหมู่) เป็น "สีดำ" */
     div[data-testid="stWidgetLabel"] p,
     div[data-testid="stWidgetLabel"] span,
-    label, label p, label span {
-        color: #1b365d !important;
-        -webkit-text-fill-color: #1b365d !important; /* บังคับระบบ iOS/Android */
+    div[data-testid="stWidgetLabel"] label,
+    label p, label span {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important; /* ทะลวง Dark Mode ของมือถือ */
         font-weight: 700 !important;
         font-size: 15px !important;
     }
     
-    /* 2. บังคับข้อความด้านในกล่องตัวเลือก (Selectbox) */
+    /* 2. บังคับข้อความด้านในกล่องตัวเลือก (Selectbox) ให้เป็นสีดำ */
     div[data-baseweb="select"] * {
-        color: #1b365d !important;
-        -webkit-text-fill-color: #1b365d !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         font-weight: bold !important;
     }
     
-    /* 3. บังคับข้อความด้านในช่องพิมพ์ (TextInput) */
+    /* 3. บังคับข้อความด้านในช่องพิมพ์ (TextInput) ให้เป็นสีดำ */
     div[data-baseweb="input"] * {
-        color: #1b365d !important;
-        -webkit-text-fill-color: #1b365d !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         font-weight: bold !important;
     }
     
-    /* 4. บังคับรายการใน Dropdown ตอนกางออก */
+    /* 4. บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำ */
     ul[role="listbox"] *, ul[data-baseweb="menu"] * {
-        color: #1b365d !important;
-        -webkit-text-fill-color: #1b365d !important;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
         background-color: transparent !important;
     }
     ul[role="listbox"] li, ul[data-baseweb="menu"] li {
@@ -111,7 +112,7 @@ st.markdown("""
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1b365d !important;
         color: white !important;
-        -webkit-text-fill-color: white !important; /* ป้องกันปุ่มสีเพี้ยน */
+        -webkit-text-fill-color: white !important; 
         border-radius: 10px !important;
         font-weight: bold !important;
         padding: 10px !important;
@@ -259,7 +260,7 @@ else:
 
     if all_sheets_data:
         st.markdown('<div class="search-card">', unsafe_allow_html=True)
-        st.markdown('<div class="search-title" style="-webkit-text-fill-color: #333;">🔍 ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
+        st.markdown('<div class="search-title" style="color:#000000; -webkit-text-fill-color:#000000;">🔍 ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
         
         amphoe_list = list(all_sheets_data.keys())
         
@@ -310,7 +311,7 @@ else:
             is_filtered = True
 
         if is_filtered:
-            st.markdown(f'<div class="results-title" style="-webkit-text-fill-color: #1b365d;">ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="results-title" style="color:#1b365d; -webkit-text-fill-color: #1b365d;">ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
             
             st.markdown("""
             <div style="background-color: #fff3cd; color: #856404; -webkit-text-fill-color: #856404; padding: 12px 15px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 14px; line-height: 1.5;">
@@ -319,7 +320,7 @@ else:
             """, unsafe_allow_html=True)
             
             if not filtered_df.empty:
-                table_html = '<table class="custom-table"><thead><tr><th style="-webkit-text-fill-color:#333;">ที่อยู่</th><th style="-webkit-text-fill-color:#333;">ตำแหน่ง/ชื่อ</th><th style="-webkit-text-fill-color:#333;">เบอร์ติดต่อ</th></tr></thead><tbody>'
+                table_html = '<table class="custom-table"><thead><tr><th style="color:#000000; -webkit-text-fill-color:#000000;">ที่อยู่</th><th style="color:#000000; -webkit-text-fill-color:#000000;">ตำแหน่ง/ชื่อ</th><th style="color:#000000; -webkit-text-fill-color:#000000;">เบอร์ติดต่อ</th></tr></thead><tbody>'
                 
                 for _, row in filtered_df.iterrows():
                     address_str = f"หมู่ {row[moo_col]} ต.{row[tambon_col]} อ.{selected_amphoe}"
@@ -335,7 +336,7 @@ else:
                     else:
                         btn_html = "-"
                     
-                    table_html += f"<tr><td style='-webkit-text-fill-color:#444;'>{address_str}</td><td style='-webkit-text-fill-color:#444;'>{role_name_str}</td><td>{btn_html}</td></tr>"
+                    table_html += f"<tr><td style='color:#000000; -webkit-text-fill-color:#000000;'>{address_str}</td><td style='color:#000000; -webkit-text-fill-color:#000000;'>{role_name_str}</td><td>{btn_html}</td></tr>"
                     
                 table_html += '</tbody></table>'
                 st.markdown(table_html, unsafe_allow_html=True)
