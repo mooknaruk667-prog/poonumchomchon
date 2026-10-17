@@ -48,6 +48,7 @@ st.markdown("""
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
     
+    /* กรอบช่องกรอกข้อมูล */
     div[data-baseweb="input"] {
         background-color: #eaf4ff !important;
         border: 2px solid #8ab4f8 !important;
@@ -59,10 +60,36 @@ st.markdown("""
         border-color: #1b365d !important;
         box-shadow: 0 0 8px rgba(27, 54, 93, 0.4) !important;
     }
-    div[data-testid="stTextInput"] label p {
+    
+    /* 🟢 สีหัวข้อ (Label) */
+    div[data-testid="stTextInput"] label p, 
+    div[data-testid="stSelectbox"] label p {
         color: #1b365d !important;
         font-weight: 700 !important;
         font-size: 15px !important;
+    }
+    
+    /* 🟢 บังคับสี "ตัวหนังสือด้านในกล่องพิมพ์" (TextInput) */
+    div[data-testid="stTextInput"] input {
+        color: #1b365d !important;
+        font-weight: bold !important;
+    }
+    
+    /* 🟢 บังคับสี "ตัวหนังสือด้านในกล่องตัวเลือก" (Selectbox) และตอนที่พับอยู่ */
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] span,
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] div {
+        color: #1b365d !important;
+        font-weight: bold !important;
+    }
+    
+    /* 🟢 บังคับสีตัวหนังสือในรายการ Dropdown ที่กางออกมา (แก้ปัญหามือถือ Dark Mode) */
+    ul[role="listbox"] li, ul[data-baseweb="menu"] li {
+        color: #1b365d !important;
     }
     
     div[data-testid="stFormSubmitButton"] button {
@@ -125,12 +152,10 @@ if not st.session_state.logged_in:
         user_lastname = st.text_input("สกุล", placeholder="เช่น พิลึก")
         user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
         
-        # 🟢 เพิ่มกล่อง Checkbox ยอมรับเงื่อนไข
         consent_checked = st.checkbox("ข้าพเจ้ารับทราบและยินยอมให้บันทึกประวัติการเข้าใช้งาน")
         
         submitted = st.form_submit_button("เข้าสู่ระบบ", use_container_width=True)
         
-        # 🟢 เพิ่มคำชี้แจง Privacy Notice ใต้ปุ่มล็อกอิน
         st.markdown("""
         <div style="font-size: 11px; color: #666; text-align: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
             <b>คำชี้แจง:</b> ระบบมีการบันทึก ชื่อ สกุล ฝ่าย และเวลาเข้าใช้งาน เพื่อประโยชน์ในการรักษาความปลอดภัยของระบบข้อมูลสารสนเทศ
@@ -270,7 +295,6 @@ else:
         if is_filtered:
             st.markdown(f'<div class="results-title">ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
             
-            # 🟢 เพิ่มข้อกำหนดและแจ้งเตือนในหน้าผลการค้นหา
             st.markdown("""
             <div style="background-color: #fff3cd; color: #856404; padding: 12px 15px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-bottom: 20px; font-size: 14px; line-height: 1.5;">
                 ⚠️ <b>ข้อควรระวัง:</b> ข้อมูลนี้ใช้เพื่อการประสานงานเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังของทางราชการเท่านั้น <u>ห้ามมิให้คัดลอก แคปหน้าจอ หรือนำไปเผยแพร่ต่อสาธารณะโดยเด็ดขาด</u>
