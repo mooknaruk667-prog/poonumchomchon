@@ -26,10 +26,13 @@ st.set_page_config(page_title="ระบบสืบค้นข้อมูล�
 # 3. แทรกโค้ด CSS
 st.markdown("""
 <style>
+    /* บังคับให้เบราว์เซอร์แสดงผลแบบโหมดสว่าง (Light Mode) เสมอ */
+    :root { color-scheme: light !important; }
+    
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     .block-container {padding-top: 0rem; padding-bottom: 2rem; max-width: 1200px;}
-    .stApp { background-color: #eef2f6; }
+    .stApp { background-color: #eef2f6 !important; }
 
     .custom-header {
         background-color: #1b365d; color: white; padding: 15px 30px;
@@ -43,7 +46,7 @@ st.markdown("""
     .header-user { font-size: 14px; text-align: right; line-height: 1.4; }
     
     .login-container {
-        max-width: 450px; margin: 60px auto; background: white; padding: 40px 30px;
+        max-width: 450px; margin: 60px auto; background: white !important; padding: 40px 30px;
         border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef;
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
@@ -69,35 +72,31 @@ st.markdown("""
     }
 
     /* ========================================================= */
-    /* 🟢 โซนแก้ไขสีตัวหนังสือ "สีดำ" ขั้นเด็ดขาด */
+    /* 🟢 ท่าไม้ตายสูงสุด: สร้างกรอบพื้นหลังสีฟ้าอ่อนรองรับข้อความหัวข้อ */
+    /* ========================================================= */
+    div[data-testid="stSelectbox"] label p,
+    div[data-testid="stTextInput"] label p {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        background-color: #e2efff !important; /* ใส่พื้นหลังสีฟ้าอ่อนเพื่อกันกลืน */
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        display: inline-block !important;
+        margin-bottom: 5px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border: 1px solid #b3d4ff !important;
+    }
     /* ========================================================= */
     
-    /* 1. เปลี่ยนหัวข้อหลังไอคอน (📍เลือกอำเภอ, 🏠เลือกหมู่) เป็น "สีดำ" */
-    div[data-testid="stWidgetLabel"] p,
-    div[data-testid="stWidgetLabel"] span,
-    div[data-testid="stWidgetLabel"] label,
-    label p, label span {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important; /* ทะลวง Dark Mode ของมือถือ */
-        font-weight: 700 !important;
-        font-size: 15px !important;
-    }
-    
-    /* 2. บังคับข้อความด้านในกล่องตัวเลือก (Selectbox) ให้เป็นสีดำ */
-    div[data-baseweb="select"] * {
+    /* บังคับข้อความด้านในกล่องตัวเลือกและช่องพิมพ์ให้เป็นสีดำ */
+    div[data-baseweb="select"] *, div[data-baseweb="input"] * {
         color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
         font-weight: bold !important;
     }
     
-    /* 3. บังคับข้อความด้านในช่องพิมพ์ (TextInput) ให้เป็นสีดำ */
-    div[data-baseweb="input"] * {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        font-weight: bold !important;
-    }
-    
-    /* 4. บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำ */
+    /* บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำพื้นขาว */
     ul[role="listbox"] *, ul[data-baseweb="menu"] * {
         color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
@@ -106,7 +105,6 @@ st.markdown("""
     ul[role="listbox"] li, ul[data-baseweb="menu"] li {
         background-color: #ffffff !important;
     }
-    /* ========================================================= */
     
     /* ตกแต่งปุ่มยืนยัน */
     div[data-testid="stFormSubmitButton"] button {
@@ -128,16 +126,16 @@ st.markdown("""
     }
     
     .search-card {
-        background-color: white; padding: 25px 30px; border-radius: 12px;
+        background-color: white !important; padding: 25px 30px; border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e9ecef;
     }
     .search-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333; }
     .results-title { font-size: 18px; font-weight: bold; color: #1b365d; margin-bottom: 15px; }
     
-    .custom-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;}
-    .custom-table th { background-color: #f8f9fa; color: #333; padding: 12px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid #ddd;}
-    .custom-table td { padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 14px; color: #444;}
-    .custom-table tr:hover { background-color: #fbfbfc; }
+    .custom-table { width: 100%; border-collapse: collapse; background: white !important; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;}
+    .custom-table th { background-color: #f8f9fa !important; color: #333 !important; padding: 12px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid #ddd;}
+    .custom-table td { padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 14px; color: #444 !important; -webkit-text-fill-color: #444 !important;}
+    .custom-table tr:hover { background-color: #fbfbfc !important; }
     
     .call-button { background-color: #1e7b34; color: white !important; -webkit-text-fill-color: white !important; padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
     .custom-footer { text-align: center; padding: 20px; margin-top: 40px; color: #6c757d; font-size: 14px; border-top: 1px solid #dce2e8; }
