@@ -26,9 +26,6 @@ st.set_page_config(page_title="ระบบสืบค้นข้อมูล�
 # 3. แทรกโค้ด CSS
 st.markdown("""
 <style>
-    /* บังคับให้เบราว์เซอร์แสดงผลแบบโหมดสว่าง (Light Mode) เสมอ เพื่อลดปัญหาสีเพี้ยน */
-    :root { color-scheme: light !important; }
-    
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     .block-container {padding-top: 0rem; padding-bottom: 2rem; max-width: 1200px;}
@@ -51,61 +48,17 @@ st.markdown("""
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
     
-    /* พื้นหลังกรอบกล่องกรอกข้อมูลหลัก */
-    div[data-baseweb="input"] {
-        background-color: #eaf4ff !important;
-        border: 2px solid #8ab4f8 !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease;
-    }
-    div[data-baseweb="input"]:focus-within {
-        background-color: #ffffff !important;
-        border-color: #1b365d !important;
-        box-shadow: 0 0 8px rgba(27, 54, 93, 0.4) !important;
-    }
-    
-    /* พื้นหลังกล่อง Selectbox ตอนพับ */
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 8px !important;
+    /* 🟢 คลาสพิเศษสำหรับหัวข้อ (Label) ที่เราสร้างขึ้นมาเอง */
+    .custom-label {
+        color: #1b365d !important;
+        -webkit-text-fill-color: #1b365d !important;
+        font-weight: bold !important;
+        font-size: 15px !important;
+        margin-bottom: 5px !important;
+        margin-top: 10px !important;
+        display: block !important;
     }
 
-    /* ========================================================= */
-    /* 🟢 การสร้างกรอบป้าย (Badge) ครอบข้อความหัวข้อให้โดดเด่นและกันกลืน */
-    /* ========================================================= */
-    div[data-testid="stSelectbox"] label p,
-    div[data-testid="stTextInput"] label p {
-        color: #1b365d !important;
-        -webkit-text-fill-color: #1b365d !important; /* ล็อกสีอักษรเป็นน้ำเงินเข้ม */
-        background-color: #e2efff !important; /* พื้นหลังกรอบสีฟ้าอ่อน */
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-        display: inline-block !important;
-        margin-bottom: 5px !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
-        border: 1px solid #b3d4ff !important;
-    }
-    /* ========================================================= */
-    
-    /* บังคับข้อความด้านในกล่องตัวเลือกและช่องพิมพ์ให้เป็นสีดำ */
-    div[data-baseweb="select"] *, div[data-baseweb="input"] * {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        font-weight: bold !important;
-    }
-    
-    /* บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำบนพื้นขาว */
-    ul[role="listbox"] *, ul[data-baseweb="menu"] * {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        background-color: transparent !important;
-    }
-    ul[role="listbox"] li, ul[data-baseweb="menu"] li {
-        background-color: #ffffff !important;
-    }
-    
     /* ตกแต่งปุ่มยืนยัน */
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1b365d !important;
@@ -132,7 +85,6 @@ st.markdown("""
     .search-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333; }
     .results-title { font-size: 18px; font-weight: bold; color: #1b365d; margin-bottom: 15px; }
     
-    /* ตกแต่งตาราง */
     .custom-table { width: 100%; border-collapse: collapse; background: white !important; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;}
     .custom-table th { background-color: #f8f9fa !important; color: #333 !important; padding: 12px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid #ddd;}
     .custom-table td { padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 14px; color: #444 !important; -webkit-text-fill-color: #444 !important;}
@@ -165,9 +117,15 @@ if not st.session_state.logged_in:
     st.markdown('<p style="text-align: center; color:#666; -webkit-text-fill-color: #666; font-size:14px; margin-bottom: 25px;">กรุณาลงชื่อก่อนเข้าใช้งาน</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        user_firstname = st.text_input("ชื่อ", placeholder="เช่น หล่อ")
-        user_lastname = st.text_input("สกุล", placeholder="เช่น พิลึก")
-        user_dept = st.text_input("ฝ่าย", placeholder="เช่น ทัณฑปฏิบัติ")
+        # 🟢 แก้ไข: สร้างหัวข้อแยกต่างหาก และซ่อนหัวข้อของ Streamlit
+        st.markdown('<div class="custom-label">ชื่อ</div>', unsafe_allow_html=True)
+        user_firstname = st.text_input("firstname_input", placeholder="เช่น หล่อ", label_visibility="collapsed")
+        
+        st.markdown('<div class="custom-label">สกุล</div>', unsafe_allow_html=True)
+        user_lastname = st.text_input("lastname_input", placeholder="เช่น พิลึก", label_visibility="collapsed")
+        
+        st.markdown('<div class="custom-label">ฝ่าย</div>', unsafe_allow_html=True)
+        user_dept = st.text_input("dept_input", placeholder="เช่น ทัณฑปฏิบัติ", label_visibility="collapsed")
         
         consent_checked = st.checkbox("ข้าพเจ้ารับทราบและยินยอมให้บันทึกประวัติการเข้าใช้งาน")
         
@@ -192,7 +150,6 @@ if not st.session_state.logged_in:
                 bkk_tz = pytz.timezone('Asia/Bangkok')
                 login_time = datetime.now(bkk_tz).strftime("%d/%m/%Y %H:%M:%S")
                 
-                # ⚠️ นำ URL ของ Web App จาก Google Apps Script มาใส่ตรงนี้
                 LOG_API_URL = "ใส่_URL_WEB_APP_ของคุณที่นี่"
                 
                 if LOG_API_URL != "ใส่_URL_WEB_APP_ของคุณที่นี่":
@@ -265,7 +222,9 @@ else:
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            selected_amphoe = st.selectbox("📍 เลือกอำเภอ (จากแท็บชีต)", amphoe_list)
+            # 🟢 แก้ไข: สร้างหัวข้อแยกต่างหากด้วย HTML และซ่อน Label ของ Streamlit
+            st.markdown('<div class="custom-label">📍 เลือกอำเภอ (จากแท็บชีต)</div>', unsafe_allow_html=True)
+            selected_amphoe = st.selectbox("amphoe_select", amphoe_list, label_visibility="collapsed")
             
         df = all_sheets_data[selected_amphoe]
         cols = df.columns.tolist()
@@ -285,7 +244,9 @@ else:
         with col2:
             moo_options = df[moo_col].unique()
             moo_list = ["ทั้งหมด"] + sorted([str(x) for x in moo_options if x != "-"])
-            selected_moo = st.selectbox(f"🏠 เลือก{moo_col}", moo_list)
+            # 🟢 แก้ไขหัวข้อหมู่ที่
+            st.markdown(f'<div class="custom-label">🏠 เลือก{moo_col}</div>', unsafe_allow_html=True)
+            selected_moo = st.selectbox("moo_select", moo_list, label_visibility="collapsed")
 
         with col3:
             temp_df = df.copy()
@@ -294,7 +255,9 @@ else:
                 
             tambon_options = temp_df[tambon_col].unique()
             tambon_list = ["ทั้งหมด"] + sorted([str(x) for x in tambon_options if x != "-"])
-            selected_tambon = st.selectbox(f"📍 เลือก{tambon_col}", tambon_list)
+            # 🟢 แก้ไขหัวข้อตำบล
+            st.markdown(f'<div class="custom-label">📍 เลือก{tambon_col}</div>', unsafe_allow_html=True)
+            selected_tambon = st.selectbox("tambon_select", tambon_list, label_visibility="collapsed")
             
         st.markdown('</div>', unsafe_allow_html=True)
 
