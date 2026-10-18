@@ -156,18 +156,18 @@ if not st.session_state.logged_in:
                 bkk_tz = pytz.timezone('Asia/Bangkok')
                 login_time = datetime.now(bkk_tz).strftime("%d/%m/%Y %H:%M:%S")
                 
-                LOG_API_URL = "https://script.google.com/macros/s/AKfycbwwx4z5dFzLbIWjwOEmBvL0yNZS8B89fkS0DsrnaYjEG28-Dki-CTl7jYLJJjSjNXgF/exec"
+                # นำลิงก์ Web App ล่าสุดมาใส่ในตัวแปรนี้
+                LOG_API_URL = "https://script.google.com/macros/s/AKfycbwyAP6ML_ad1eDhI5clisbp_PYddk2GYx7X7DcdA0cL1Hju9xErZFtl8T25SkmvBmTN/exec"
                 
-                if LOG_API_URL != "https://script.google.com/macros/s/AKfycbwwx4z5dFzLbIWjwOEmBvL0yNZS8B89fkS0DsrnaYjEG28-Dki-CTl7jYLJJjSjNXgF/exec":
-                    try:
-                        payload = {
-                            "name": user_full_name,
-                            "dept": user_dept.strip(),
-                            "time": login_time
-                        }
-                        requests.get(LOG_API_URL, params=payload, timeout=5)
-                    except Exception as e:
-                        print("Error logging to sheets:", e)
+                try:
+                    payload = {
+                        "name": user_full_name,
+                        "dept": user_dept.strip(),
+                        "time": login_time
+                    }
+                    requests.get(LOG_API_URL, params=payload, timeout=5)
+                except Exception as e:
+                    print("Error logging to sheets:", e)
                 
                 st.rerun()
             else:
@@ -222,14 +222,12 @@ else:
 
     if all_sheets_data:
         st.markdown('<div class="search-card">', unsafe_allow_html=True)
-        # 🟢 ลบไอคอน 🔍 ออก และปรับสีให้ดำสนิท
         st.markdown('<div class="search-title">ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
         
         amphoe_list = list(all_sheets_data.keys())
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            # 🟢 ลบไอคอน 📍 ออกทั้งหมด
             st.markdown('<div class="custom-label">เลือกอำเภอ (จากแท็บชีต)</div>', unsafe_allow_html=True)
             selected_amphoe = st.selectbox("amphoe_select", amphoe_list, label_visibility="collapsed")
             
@@ -251,7 +249,6 @@ else:
         with col2:
             moo_options = df[moo_col].unique()
             moo_list = ["ทั้งหมด"] + sorted([str(x) for x in moo_options if x != "-"])
-            # 🟢 ลบไอคอน 🏠 ออกทั้งหมด
             st.markdown(f'<div class="custom-label">เลือก{moo_col}</div>', unsafe_allow_html=True)
             selected_moo = st.selectbox("moo_select", moo_list, label_visibility="collapsed")
 
@@ -262,7 +259,6 @@ else:
                 
             tambon_options = temp_df[tambon_col].unique()
             tambon_list = ["ทั้งหมด"] + sorted([str(x) for x in tambon_options if x != "-"])
-            # 🟢 ลบไอคอน 📍 ออกทั้งหมด
             st.markdown(f'<div class="custom-label">เลือก{tambon_col}</div>', unsafe_allow_html=True)
             selected_tambon = st.selectbox("tambon_select", tambon_list, label_visibility="collapsed")
             
