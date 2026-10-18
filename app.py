@@ -132,7 +132,6 @@ if not st.session_state.logged_in:
     st.markdown('<h3 style="text-align: center; color:#4a6582; -webkit-text-fill-color: #4a6582; font-size: 15px; font-weight: 600; margin-bottom: 25px;">🔐 ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
     
     with st.form("login_form"):
-        # เพิ่มไอคอน Emoji กลับเข้าไปในป้ายกำกับ
         st.markdown('<div class="custom-label"><span class="icon-emoji">👤</span>ชื่อ</div>', unsafe_allow_html=True)
         user_firstname = st.text_input("firstname_input", placeholder="กรุณากรอกชื่อ", label_visibility="collapsed")
         
@@ -205,4 +204,124 @@ else:
     
     col_empty, col_logout = st.columns([8.8, 1.2])
     with col_logout:
-        if st.button("🚪 ออกจากระบบ", use_container_
+        if st.button("🚪 ออกจากระบบ", use_container_width=True):
+            st.session_state.logged_in = False
+            st.rerun()
+
+    SHEET_URL = "https://docs.google.com/spreadsheets/d/1xpG9TQH5rAIUwECgy8LKQLO4lGPQrc_jE-ZwRFLK0hE/export?format=xlsx"
+
+    @st.cache_data(ttl=600)
+    def load_data():
+        try:
+            df_dict = pd.read_excel(SHEET_URL, sheet_name=None)
+            for sheet, df in df_dict.items():
+                df = df.fillna("-")
+                df = df.loc[:, ~df.columns.duplicated()] 
+                for col in df.columns:
+                    if 'เบอร์' in col or 'โทร' in col:
+                        df[col] = df[col].astype(str).str.replace(r'\.0$', '', regex=True)
+                df_dict[sheet] = df
+            return df_dict
+        except Exception as e:
+            st.error(f"ไม่สามารถโหลดข้อมูลได้: {e}")
+            return None
+
+    all_sheets_data = load_data()
+
+    if all_sheets_data:
+        st.markdown('<div class="search-card">', unsafe_allow_html=True)
+        st.markdown('<div class="search-title"><span class="icon-emoji">🔍</span> ค้นหาข้อมูลผู้นำชุมชน</div>', unsafe_allow_html=True)
+        
+        amphoe_list = list(all_sheets_data.keys())
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown('<div class="custom-label"><span class="icon-emoji">📍</span>เลือกอำเภอ (จากแท็บชีต)</div>', unsafe_allow_html=True)
+            selected_amphoe = st.selectbox("amphoe_select", amphoe_list, label_visibility="collapsed")
+            
+        df = all_sheets_data[selected_amphoe]
+        cols = df.columns.tolist()
+        
+        def get_column_name(keywords, fallback_index):
+            for k in keywords:
+                for c in cols:
+                    if k in c: return c
+            return cols[fallback_index] if len(cols) > fallback_index else cols[-1]
+
+        tambon_col = get_column_name(['ตำบล'], 1)
+        moo_col = get_column_name(['หมู่'], 2)
+        position_col = get_column_name(['ตำแหน่ง', 'ประเภท'], 3)
+        name_col = get_column_name(['ชื่อ'], 4)
+        phone_col = get_column_name(['เบอร์', 'โทร'], 5)
+        
+        with col2:
+            moo_options = df[moo_col].unique()
+            moo_list = ["ทั้งหมด"] + sorted([str(x) for x in moo_options if x != "-"])
+            st.markdown(f'<div class="custom-label"><span class="icon-emoji">🏘️</span>เลือก{moo_col}</div>', unsafe_allow_html=True)
+            selected_moo = st.selectbox("moo_select", moo_list, label_visibility="collapsed")
+
+        with col3:
+            temp_df = df.copy()
+            if selected_moo != "ทั้งหมด":
+                temp_df = temp_df[temp_df[moo_col].astype(str) == selected_moo]
+                
+            tambon_options = temp_df[tambon_col].unique()
+            tambon_list = ["ทั้งหมด"] + sorted([str(x) for x in tambon_options if x != "-"])
+            st.markdown(f'<div class="custom-label"><span class="icon-emoji">📌</span>เลือก{tambon_col}</div>', unsafe_allow_html=True)
+            selected_tambon = st.selectbox("tambon_select", tambon_list, label_visibility="collapsed")
+            
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        is_filtered = False
+        filtered_df = df.copy()
+        
+        if selected_moo != "ทั้งหมด":
+            filtered_df = filtered_df[filtered_df[moo_col].astype(str) == selected_moo]
+            is_filtered = True
+            
+        if selected_tambon != "ทั้งหมด":
+            filtered_df = filtered_df[filtered_df[tambon_col] == selected_tambon]
+            is_filtered = True
+
+        if is_filtered:
+            st.markdown(f'<div class="results-title" style="color:#1b365d; -webkit-text-fill-color: #1b365d;"><span class="icon-emoji">📋</span> ผลการค้นหา ({len(filtered_df)} รายการ)</div>', unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div style="background-color: #fff8e6; color: #856404; -webkit-text-fill-color: #856404; padding: 15px 20px; border-radius: 12px; border-left: 6px solid #ffc107; margin-bottom: 20px; font-size: 14px; line-height: 1.6; box-shadow: 0 2px 8px rgba(255,193,7,0.15);">
+                <span class="icon-emoji">⚠️</span> <b>ข้อควรระวัง:</b> ข้อมูลนี้ใช้เพื่อการประสานงานเตรียมความพร้อมก่อนปล่อยตัวผู้ต้องขังของทางราชการเท่านั้น <u>ห้ามมิให้คัดลอก แคปหน้าจอ หรือนำไปเผยแพร่ต่อสาธารณะโดยเด็ดขาด</u>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if not filtered_df.empty:
+                table_html = '<table class="custom-table"><thead><tr><th style="color:white; -webkit-text-fill-color:white;">ที่อยู่</th><th style="color:white; -webkit-text-fill-color:white;">ตำแหน่ง / ชื่อ-สกุล</th><th style="color:white; -webkit-text-fill-color:white;">เบอร์ติดต่อ</th></tr></thead><tbody>'
+                
+                for _, row in filtered_df.iterrows():
+                    address_str = f"หมู่ {row[moo_col]} ต.{row[tambon_col]} อ.{selected_amphoe}"
+                    
+                    pos = row[position_col]
+                    role_name_str = f"<b>{pos}</b> <br> {row[name_col]}" if pos != "-" else row[name_col]
+                    
+                    phone_str = str(row[phone_col])
+                    clean_phone = "".join(filter(str.isdigit, phone_str))
+                    
+                    if clean_phone and clean_phone != "-":
+                        # แก้ไขเครื่องหมายคำพูดใน class="icon-emoji" เป็น class='icon-emoji' เรียบร้อยแล้ว
+                        btn_html = f"<a href='tel:{clean_phone}' class='call-button'><span class='icon-emoji'>📞</span> โทรออก</a>"
+                    else:
+                        btn_html = "-"
+                    
+                    table_html += f"<tr><td>{address_str}</td><td>{role_name_str}</td><td>{btn_html}</td></tr>"
+                    
+                table_html += '</tbody></table>'
+                st.markdown(table_html, unsafe_allow_html=True)
+            else:
+                st.warning("ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา")
+        else:
+            st.info("👈 กรุณาเลือก 'หมู่ที่' หรือ 'ตำบล' ในกล่องค้นหาด้านบน เพื่อแสดงรายชื่อผู้นำชุมชนครับ")
+
+    st.markdown('''
+    <div class="custom-footer">
+        <div style="color: #1b365d; -webkit-text-fill-color: #1b365d; font-weight: bold; margin-bottom: 5px; font-size: 14.5px;">ศูนย์ฟื้นฟูสภาพทางสังคม ส่วนพัฒนาผู้ต้องขัง เรือนจำจังหวัดบุรีรัมย์</div>
+        <div style="font-size: 12px; color: #888;">พัฒนาโดย: Km Ureka Moment</div>
+    </div>
+    ''', unsafe_allow_html=True)
