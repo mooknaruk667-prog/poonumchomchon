@@ -26,7 +26,7 @@ st.set_page_config(page_title="ระบบสืบค้นข้อมูล�
 # 3. แทรกโค้ด CSS
 st.markdown("""
 <style>
-    /* บังคับให้เบราว์เซอร์แสดงผลแบบโหมดสว่าง (Light Mode) เสมอ */
+    /* บังคับให้เบราว์เซอร์แสดงผลแบบโหมดสว่าง (Light Mode) เสมอ เพื่อลดปัญหาสีเพี้ยน */
     :root { color-scheme: light !important; }
     
     #MainMenu {visibility: hidden;}
@@ -51,7 +51,7 @@ st.markdown("""
     }
     .login-logo { width: 90px; height: 90px; object-fit: contain; margin: 0 auto 15px auto; display: block; }
     
-    /* พื้นหลังกรอบกล่องกรอกข้อมูล */
+    /* พื้นหลังกรอบกล่องกรอกข้อมูลหลัก */
     div[data-baseweb="input"] {
         background-color: #eaf4ff !important;
         border: 2px solid #8ab4f8 !important;
@@ -72,13 +72,13 @@ st.markdown("""
     }
 
     /* ========================================================= */
-    /* 🟢 ท่าไม้ตายสูงสุด: สร้างกรอบพื้นหลังสีฟ้าอ่อนรองรับข้อความหัวข้อ */
+    /* 🟢 การสร้างกรอบป้าย (Badge) ครอบข้อความหัวข้อให้โดดเด่นและกันกลืน */
     /* ========================================================= */
     div[data-testid="stSelectbox"] label p,
     div[data-testid="stTextInput"] label p {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        background-color: #e2efff !important; /* ใส่พื้นหลังสีฟ้าอ่อนเพื่อกันกลืน */
+        color: #1b365d !important;
+        -webkit-text-fill-color: #1b365d !important; /* ล็อกสีอักษรเป็นน้ำเงินเข้ม */
+        background-color: #e2efff !important; /* พื้นหลังกรอบสีฟ้าอ่อน */
         padding: 4px 10px !important;
         border-radius: 6px !important;
         display: inline-block !important;
@@ -96,7 +96,7 @@ st.markdown("""
         font-weight: bold !important;
     }
     
-    /* บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำพื้นขาว */
+    /* บังคับรายการใน Dropdown ตอนกางออก ให้เป็นสีดำบนพื้นขาว */
     ul[role="listbox"] *, ul[data-baseweb="menu"] * {
         color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
@@ -132,6 +132,7 @@ st.markdown("""
     .search-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333; }
     .results-title { font-size: 18px; font-weight: bold; color: #1b365d; margin-bottom: 15px; }
     
+    /* ตกแต่งตาราง */
     .custom-table { width: 100%; border-collapse: collapse; background: white !important; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;}
     .custom-table th { background-color: #f8f9fa !important; color: #333 !important; padding: 12px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid #ddd;}
     .custom-table td { padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 14px; color: #444 !important; -webkit-text-fill-color: #444 !important;}
