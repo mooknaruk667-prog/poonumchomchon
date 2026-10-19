@@ -218,7 +218,7 @@ else:
                 df = df.fillna("-")
                 df = df.loc[:, ~df.columns.duplicated()] 
                 for col in df.columns:
-                    if 'เบอร์' in col or 'โทร' in col:
+                    if 'เบอร์' in col or 'โทร' in col or 'หมู่' in col:
                         df[col] = df[col].astype(str).str.replace(r'\.0$', '', regex=True)
                 df_dict[sheet] = df
             return df_dict
@@ -305,8 +305,8 @@ else:
                     clean_phone = "".join(filter(str.isdigit, phone_str))
                     
                     if clean_phone and clean_phone != "-":
-                        # แก้ไขเครื่องหมายคำพูดใน class="icon-emoji" เป็น class='icon-emoji' เรียบร้อยแล้ว
-                        btn_html = f"<a href='tel:{clean_phone}' class='call-button'><span class='icon-emoji'>📞</span> โทรออก</a>"
+                        # 🟢 จุดสำคัญ: แยกตัวเลขออกมานอกปุ่ม ให้แสดงผลชัดเจนและกดคลุมดำก็อปปี้ได้ง่าย 
+                        btn_html = f"<div style='display: flex; align-items: center; gap: 10px;'><span style='user-select: all; font-weight: 600; font-size: 15px; color: #1b365d;'>{phone_str}</span><a href='tel:{clean_phone}' class='call-button' style='padding: 4px 10px; font-size: 12.5px;'><span class='icon-emoji'>📞</span> โทร</a></div>"
                     else:
                         btn_html = "-"
                     
