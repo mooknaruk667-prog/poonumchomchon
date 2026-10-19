@@ -132,11 +132,12 @@ if not st.session_state.logged_in:
     st.markdown('<h3 style="text-align: center; color:#4a6582; -webkit-text-fill-color: #4a6582; font-size: 15px; font-weight: 600; margin-bottom: 25px;">🔐 ระบบสืบค้นข้อมูลผู้นำชุมชน</h3>', unsafe_allow_html=True)
     
     with st.form("login_form"):
+        # 🟢 เปลี่ยนข้อความ placeholder ตามที่ต้องการ
         st.markdown('<div class="custom-label"><span class="icon-emoji">👤</span>ชื่อ</div>', unsafe_allow_html=True)
-        user_firstname = st.text_input("firstname_input", placeholder="กรุณากรอกชื่อ", label_visibility="collapsed")
+        user_firstname = st.text_input("firstname_input", placeholder="ชื่อผู้เข้าใช้", label_visibility="collapsed")
         
         st.markdown('<div class="custom-label"><span class="icon-emoji">📝</span>สกุล</div>', unsafe_allow_html=True)
-        user_lastname = st.text_input("lastname_input", placeholder="กรุณากรอกนามสกุล", label_visibility="collapsed")
+        user_lastname = st.text_input("lastname_input", placeholder="นามสกุล", label_visibility="collapsed")
         
         st.markdown('<div class="custom-label"><span class="icon-emoji">🏢</span>ฝ่าย</div>', unsafe_allow_html=True)
         user_dept = st.text_input("dept_input", placeholder="เช่น ทัณฑปฏิบัติ", label_visibility="collapsed")
@@ -305,7 +306,6 @@ else:
                     clean_phone = "".join(filter(str.isdigit, phone_str))
                     
                     if clean_phone and clean_phone != "-":
-                        # 🟢 จุดสำคัญ: แยกตัวเลขออกมานอกปุ่ม ให้แสดงผลชัดเจนและกดคลุมดำก็อปปี้ได้ง่าย 
                         btn_html = f"<div style='display: flex; align-items: center; gap: 10px;'><span style='user-select: all; font-weight: 600; font-size: 15px; color: #1b365d;'>{phone_str}</span><a href='tel:{clean_phone}' class='call-button' style='padding: 4px 10px; font-size: 12.5px;'><span class='icon-emoji'>📞</span> โทร</a></div>"
                     else:
                         btn_html = "-"
